@@ -408,6 +408,29 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 	The reason is that remembering the exact associativity is too error-prone. See also \mintinline{igor}{DisplayHelpTopic "Operators"}.
 	\end{itemize}
 	%
+\subsection{Waves}
+%
+\begin{itemize}
+	\item In multidimensional wave assignments always specify the exact dimension for each value:
+	\begin{minted}{igor}
+		Make/N=(1,1,2) data = NaN
+		data[0][0][] = 0
+	\end{minted}
+	In this example data will be set to \mintinline{igor}{0} for both values.
+	Each dimension is specified: p and q are fixed to \mintinline{igor}{0} and both values in dimension r are set to \mintinline{igor}{0}.
+%
+	\begin{minted}{igor}
+		Make/N=(1,1,2) data = NaN
+		data[0][0] = 0
+	\end{minted}
+	In this example the output will be \mintinline{igor}{0} and \mintinline{igor}{NaN} when using Igor Pro 7 (IP7).
+	In Igor Pro 6 (IP6) the assignement will result in \mintinline{igor}{0} for both values. \newline
+	The IP6 behaviour can be triggered in IP7 by setting an Igor Option:
+	\begin{minted}{igor}
+		SetIgorOption FuncOptimize, WaveEqn = 1
+	\end{minted}
+	To avoid confusing code always specify what value should go in which dimension (row, column, layer, chunk).
+\end{itemize}
 \subsection{Constants}
 %
 \begin{itemize}
