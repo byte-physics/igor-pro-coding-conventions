@@ -456,7 +456,61 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 
 	print a
 	\end{minted}
-	is valid code. And that certainly will confuse people coming from C/C++.
+	is valid code. And that certainly will confuse people coming from C/C++.\\
+%
+	Please also note that in the example above a blank line separates function argument definitions from general variable definitions.
+	This will improve readability.
+%
+	\item Optional arguments should have defined default values:
+	\begin{minted}{igor}
+		Function DoCalculation(input, [verbose])
+			variable input, verbose
+
+			if(ParamIsDefault(verbose))
+				verbose = 0
+			endif
+
+			// code
+		End
+	\end{minted}
+%
+	\item Function Call with optional arguments:
+	\begin{minted}[showspaces]{igor}
+		DoCalculation(41, verbose = 1)
+	\end{minted}
+		When calling a function, each argument is separated by a comma followed by a whitespace.
+		Optional arguments are set with surrounding white spaces before and after the equal sign.
+	\item Boolean optional arguments should be forced to (0,1)
+	\begin{minted}{igor}
+		Function DoCalculation([overwrite])
+			variable overwrite
+
+			overwrite = ParamIsDefault(overwrite) ? 0 : !!overwrite
+
+			if(overwrite)
+				// Some Code
+			endif
+
+			if(!overwrite)
+				// Negation will work as expected
+			endif
+		End
+	\end{minted}
+	The reason for this rule is that possibly unexpected behaviour should always be avoided.
+	Without the double negation statement neither one of the above if statements would get triggered if \mintinline{igor}{overwrite=NaN}.\newline
+	To make this clear look at the following example:
+	The function will print 2 as NaN can not get evaluated.
+	\begin{minted}{igor}
+		Function NaNisNotBool()
+			if(NaN)
+				print 0
+			elseif(!NaN)
+				print 1
+			else
+				print 2
+			endif
+		End
+	\end{minted}
 \end{itemize}
 %
 \section{Links and Literature}
