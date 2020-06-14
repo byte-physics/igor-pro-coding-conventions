@@ -1,4 +1,5 @@
-#/bin/bash
+#!/bin/bash
+
 # script checks for correct installation and executes build-documentation afterwards
 # output is verbose
 #
