@@ -1,3 +1,5 @@
+% vim: set noexpandtab:
+
 \documentclass{scrartcl}
 
 % Compilation instructions and required third party tools:
@@ -13,8 +15,8 @@
 \setminted{autogobble, tabsize=4, fontfamily=tt}
 \setminted[igor]{style=igor}
 
-\date{21.01.2016}
-\newcommand{\version}{0.13}
+\date{4.05.2020}
+\newcommand{\version}{0.14}
 
 \usepackage[%
 pdfa=true,
@@ -41,7 +43,7 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 	\item Filenames are built from the characters \mintinline{text}{[A-Za-z_-]} and end with \mintinline{text}{.ipf}
 %
 	\item The file encoding is OS-dependent but the used charset should always be restricted to ASCII characters.
-		  Code parts exclusively used with Igor Pro 7 should use UTF-8 as text encoding and specify \mintinline{igor}{#pragma TextEncoding = "UTF-8"}.
+		  Code parts exclusively used with Igor Pro 7 or higher should use UTF-8 as text encoding and specify \mintinline{igor}{#pragma TextEncoding = "UTF-8"}.
 %
 	\item The beginning of each procedure file has \mintinline{igor}{#pragma rtGlobals=3} with optional comment.
 %
@@ -54,8 +56,8 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 %
 \begin{itemize}
 	\item Use \texttt{doxygen} for documenting files, functions, macros and constants.\newline
-	There is an AWK script on IgorExchange to use Igor Pro Files with Doxygen:\newline
-	\url{http://www.igorexchange.com/project/doxIPFFilter}
+	There is an AWK script available to use Igor Pro Files with Doxygen:\newline
+	\url{https://github.com/byte-physics/doxygen-filter-ipf}
 %
 	\item Always add a space before a trailing comment as in
 	\begin{minted}{igor}
@@ -130,6 +132,16 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 			// code
 		End
 	\end{minted}
+%
+  \item If you are targeting Igor Pro 7 or higher prefer inline parameter declarations as in
+	\begin{minted}{igor}
+		Function CalculatePressure(variable weight, variable size)
+			variable i, numEntries
+
+			// code
+		End
+	\end{minted}
+  as that is easier to grasp for newcomers. And also works with multiple-return-value syntax.
 %
 	\item Add a space around mathematical/binary/comparison operators and assignments, and add a space after a comma or semicolon
 	\begin{minted}{igor}
@@ -278,15 +290,17 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 \subsection{General}
 %
 \begin{itemize}
-	\item Line length should not exceed 80 characters
+	\item Line length should not exceed 120 characters
 %
-	\item Use \mintinline{text}{camelCase} for variable/string/wave/dfref names and \mintinline{text}{CamelCase} for structures
+	\item Use \mintinline{text}{camelCase} for variable/string/wave/dfref names and \mintinline{text}{CamelCase} for functions and structures
 %
 	\item Prefer structure-based GUI control procedures over old-style functions
 %
 	\item The variables \mintinline{text}{i, j, k, l} are reserved for loop counters, from outer to inner loops
 %
 	\item Use free waves for temporary waves
+%
+	\item Prefer generic builtin functions like \mintinline{igor}{IndexToScale, DimSize} over their 1D counterparts \mintinline{igor}{pnt2x, numpnts}.
 %
 	\item Write your code as much as possible without \mintinline{igor}{SetDataFolder}. Properly document if your function expects
 	      a certain folder to be the current data folder at the time of the function call. Always restore the previously active current data folder
@@ -408,7 +422,59 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 		endif
 	\end{minted}
 	The reason is that remembering the exact associativity is too error-prone. See also \mintinline{igor}{DisplayHelpTopic "Operators"}.
-	\end{itemize}
+%
+	\item Always add a space after \mintinline{igor}{;} when multiple statements
+	are written in one line. But in general this should be avoided if possible.
+%
+	\item With try/catch always clear runtime errors twice
+	\begin{minted}{igor}
+		try
+			err = getRTError(1)
+			WAVE wv = I_DONT_EXIST; AbortOnRTE
+		catch
+			err = getRTError(1)
+			// handle error
+		endtry
+	\end{minted}
+	If you don't clear it after \mintinline{igor}{try} any still lingering
+	runtime error will trigger an abort via \mintinline{igor}{AbortOnRTE} and that results in
+	difficult to diagnose bugs.
+%
+	\item Don't mix \mintinline{igor}{$} with other expressions as it makes the code too hard to read\par
+	Bad:\par
+	\begin{minted}{igor}
+		WAVE/Z wv = root:$(str + "_suffix")
+	\end{minted}
+	Good:\par
+	\begin{minted}{igor}
+		string folder = str + "_suffix"
+		WAVE/Z wv = root:$folder
+	\end{minted}
+	The reason for this rule is that it makes the code easier to grasp, see\newline
+	\mintinline{igor}{DisplayHelpTopic "$ Precedence Issues In Commands"} for the
+	details how \mintinline{igor}{$} works in complex expressions.
+%
+	\item Always add \mintinline{igor}{break} statements in each branch of
+	\mintinline{igor}{switch/strswitch} statements. If you intentionally
+	fallthrough mark that by an explicit comment.
+	\begin{minted}{igor}
+		switch(state)
+			case STATE_A:
+				// do something
+				break
+			case STATE_B:
+				// something else
+				break
+			caste STATE_C: // fallthrough-by-design
+			caste STATE_D:
+				// another thing
+				break
+			default:
+				// do nothing
+				break
+		endswitch
+	\end{minted}
+\end{itemize}
 	%
 \subsection{Waves}
 %
@@ -505,6 +571,7 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 	\end{minted}
 		When calling a function, each argument is separated by a comma followed by a whitespace.
 		Optional arguments are set with surrounding white spaces before and after the equal sign.
+%
 	\item Boolean optional arguments should be forced to (0,1)
 	\begin{minted}{igor}
 		Function DoCalculation([overwrite])
@@ -536,6 +603,54 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 			endif
 		End
 	\end{minted}
+%
+	\item If you don't care about a function result, return \mintinline{igor}{NaN/""/$""}
+	\begin{minted}{igor}
+		Function Dostuff()
+
+			if(!isSomethingToDo())
+				return NaN
+			endif
+
+			// code
+		End
+	\end{minted}
+	The reason for this rule is that it makes the code easier to understand as
+	these are the default return values (without multiple-return-value syntax)
+	used by Igor Pro.
+%
+	\item Set pass-by-reference parameters to a save default value immediately at
+	the beginning of the function
+	\begin{minted}{igor}
+		Function Dostuff(param)
+			variable &param
+
+			param = NaN
+
+			if(!isSomethingToDo())
+				return NaN
+			endif
+
+			// code
+		End
+	\end{minted}
+	The reason is that all function return paths should return well-defined
+	values in the returned pass-by-reference parameters. If the passed parameter
+	is a structure, write a structure initialization function to handle setting
+	it to a safe default.
+%
+\item Be aware of the different initial values for return values when using multiple-return-value syntax.
+	\begin{minted}{igor}
+		Function [variable var] New()
+			// code
+		End
+
+		Function Old()
+			// code
+		End
+	\end{minted}
+	The function \mintinline{igor}{New()} returns \mintinline{igor}{0.0} whereas
+	\mintinline{igor}{Old()} returns \mintinline{igor}{NaN}.
 \end{itemize}
 %
 \section{Links and Literature}

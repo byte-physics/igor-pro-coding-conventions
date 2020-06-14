@@ -1,5 +1,5 @@
-FROM debian:stretch
-MAINTAINER Matthias J. Kastner matthias.kastner@byte-physics.de
+FROM debian:buster
+MAINTAINER Thomas Braun thomas.braun@byte-physics.de
 
 # download appropriate packages
 RUN	apt-get update --quiet \
