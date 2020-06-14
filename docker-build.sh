@@ -16,15 +16,15 @@ if [ ! $(groups | grep -c -w docker) -eq 1 ]; then
 fi
 # build containter
 echo "start building Docker container 'texlive2016-pygments'"
-docker build -t texlive2016-pygments -f docker/Dockerfile .
+docker build -t texlive2018-pygments -f docker/Dockerfile .
 # show current LuaLaTEX version
-echo "LuaLaTEX " $(docker run -it --rm -v $(pwd):/opt/latex texlive2016-pygments lualatex -v | egrep -o "Version\ ([0-9.]+)")
+echo "LuaLaTEX " $(docker run -it --rm -v $(pwd):/opt/latex texlive2018-pygments lualatex -v | egrep -o "Version\ ([0-9.]+)")
 #
 # clean up previously generated minted output
 # uncomment this if an error occured!
-# docker run -it --rm -v $(pwd):/opt/latex texlive2016-pygments rm -R /opt/latex/_minted-*
+# docker run -it --rm -v $(pwd):/opt/latex texlive2018-pygments rm -R /opt/latex/_minted-*
 #
 echo "building coding_conventions.pdf"
-docker run -it --rm -v $(pwd):/opt/latex texlive2016-pygments lualatex --shell-escape coding_conventions.tex
+docker run -it --rm -v $(pwd):/opt/latex texlive2018-pygments lualatex --shell-escape coding_conventions.tex
 echo "building coding_bestpractices.pdf"
-docker run -it --rm -v $(pwd):/opt/latex texlive2016-pygments lualatex --shell-escape coding_bestpractices.tex
+docker run -it --rm -v $(pwd):/opt/latex texlive2018-pygments lualatex --shell-escape coding_bestpractices.tex

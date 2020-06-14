@@ -6,7 +6,7 @@ For installing docker see https://docs.docker.com/linux/
 
 ## Container
 This contains
-* debian stretch
+* debian buster
 * texlive-base
 * texlive-latex-base for lualatex
 * texlive-luatex for actual luatex support (luaotfload)
