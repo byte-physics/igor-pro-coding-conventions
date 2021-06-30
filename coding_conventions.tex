@@ -538,6 +538,26 @@ pdfauthor={Thomas Braun, byte physics, thomas.braun@byte-physics.de}
 	\end{minted}
 \end{itemize}
 %
+\section{Avoid Memory Leaks}
+%
+\begin{itemize}
+  \item When a functions that returns a free wave is called in an operation call or user-defined function call
+directly as parameter the free wave is not freed and thus causes a memory leak.
+To avoid these cases, free waves that are returned from functions must always assigned to a wave reference variable.
+	\begin{minted}{igor}
+		Function AvoidLeak()
+			Duplicate ReturnsFreeWave(), targetWave // Causes leak, DO NOT USE
+			max = WaveMax(ReturnsFreeWave()) // Causes leak, DO NOT USE
+
+			WAVE w = ReturnsFreeWave() // good
+			Duplicate w, targetWave
+
+			WAVE w = ReturnsFreeWave() // good
+			max = WaveMax(w)
+		End
+	\end{minted}
+\end{itemize}
+
 \section{Links and Literature}
 %
 \begin{itemize}
