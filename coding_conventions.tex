@@ -673,6 +673,38 @@ To avoid these cases, free waves that are returned from functions must always as
 	\end{minted}
 \end{itemize}
 
+\begin{itemize}
+	\item Sometimes there are situations where the use of logical and bitwise operators gives technically the same result.
+	However, if a function returns a true/false value, which in principal could be some abstract object then logical operators have to be used.
+	This applies also for variables that use a value as flag to indicate a true/false state.
+	This leaves bitwise operators for bit calculations that commonly include two or more bits.
+	  \begin{minted}{igor}
+		  /// @brief Return true if wv is a free wave, false otherwise
+		  threadsafe Function IsFreeWave(wv)
+		     Wave wv
+
+			 return WaveType(wv, 2) == 2
+		  End
+
+		  Function DoStuff()
+
+            variable truthValue = 1
+            variable bitValue = 0x10
+			Make/FREE wv
+
+			// use logical operation
+			if(IsFreeWave(wv) && truthValue)
+			   // do something
+			endif
+
+            bitValue = bitValue << 2
+			// Use bitwise operation
+			print bitValue & 0x40
+
+		  End
+	  \end{minted}
+  \end{itemize}
+
 \section{Links and Literature}
 %
 \begin{itemize}
