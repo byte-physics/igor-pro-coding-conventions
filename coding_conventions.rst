@@ -600,6 +600,10 @@ Macros
   a function to reset the panel to the default state and let Igor Pro
   rewrite the macro by ``DoWindow/R``.
 
+- Don't mix machine generated code with developer maintained code. It is
+  therefore advisable to put window recreation macros into separate procedure
+  files.
+
 Functions
 ^^^^^^^^^
 
