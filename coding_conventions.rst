@@ -927,3 +927,72 @@ No code outside the event switch in GUI control procedures
            break
        endswitch
      End
+
+Preventing Debugger Popup
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Functions can in expected situations raise runtime errors and the error
+condition is evaluated properly afterwards.  When the Debugger is enabled and
+options are set to "Debug On Error", the Debugger will popup on the line
+where such functions calls take place. This is inconvenient for debugging
+because the error is intended and properly handled.
+
+To prevent the debugger one can use the following pattern:
+
+.. code-block:: igorpro
+
+   AssertOnAndClearRTError()
+   CriticalFunction(); err = GetRTError(1)
+
+The second part that clears the RTE must be on the same line and can not be
+moved to a separate function. This coding convention is only valid, if the
+function is expected to raise a runtime error. The function
+``AssertOnAndClearRTError()`` bugs out when a lingering RTE is present. Without
+it, the call to ``GetRTError()`` would silently clear any RTE, not just that
+from ``CriticalFunction()``.
+
+Runtime Error / Abort Handling Conventions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A ``try``/``catch``/``endtry`` construct catches by specification either
+
+- Runtime errors when ``AbortOnRTE`` is used
+- or Aborts
+
+The code must take into account the possibility of runtime errors generated
+by bad code. These unexpected RTEs must not be silently cleared.
+
+For the case, where an RTE is expected from ``CriticalFunction()``:
+
+.. code-block:: igorpro
+
+   AssertOnAndClearRTError()
+   try
+       CriticalFunction(); AbortOnRTE
+   catch
+       err = GetRTError(1)
+       // ...
+   endtry
+
+Here lingering RTEs are handled before ``try``. By convention ``AbortOnRTE`` must be
+placed in the same function as the ``try``/``catch``/``endtry`` construct.
+The code between ``try``/``catch`` should only include critical function calls and be
+kept minimal. The expected RTE condition should be cleared directly after catch.
+
+For the case, where an Abort is expected from ``CriticalFunction()``:
+
+.. code-block:: igorpro
+
+   try
+       CriticalFunction()
+   catch
+       ...
+   endtry
+
+As ``Abort``/``AbortOnValue`` do not generate an RTE condition the
+``try``/``catch`` /``endtry`` construct leaves any possibly unexpected RTE
+condition pending and no RTE condition is cleared.  The developer can evaluate
+``V_AbortCode`` in the ``catch`` statement to check the type of abort.
+
+It is mandatory to add a comment in the code before ``try`` what the construct is
+intended to handle (RTE, Abort or both).
