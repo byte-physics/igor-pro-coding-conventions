@@ -542,6 +542,25 @@ General
              break
      endswitch
 
+- Don't exploit index clipping when indexing strings. Instead always check that
+  the used index is valid before:
+
+  Good:
+
+  .. code-block:: igor
+
+     if(strlen(str) >= 2 && !CmpStr(str[1], "a"))
+       // ...
+     endif
+
+  Bad:
+
+  .. code-block:: igor
+
+     if(!CmpStr(str[1], "a"))
+       // ...
+     endif
+
 Waves
 ^^^^^
 
