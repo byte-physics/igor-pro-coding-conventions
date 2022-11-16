@@ -845,3 +845,40 @@ Prefer named entities over unnamed ones
 
      SetBackground DoStuffInBackground()
      CtrlBackground start
+
+No code outside the event switch in GUI control procedures
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- GUI control procedures are called for all Igor Pro events. Some of these
+  events, like the mouse-over event, can be fired very often. To keep the GUI
+  responsive, it is therefore much more performant to avoid executing any code
+  outside the switch statement.
+
+  Good:
+
+  .. code-block:: igor
+
+     Function ButtonProcStart(STRUCT WMButtonAction &ba) : ButtonControl
+       string method
+
+       switch(ba.eventCode)
+         case 2: // mouse up
+           method = "fast"
+           // ...
+           break
+       endswitch
+     End
+
+  Bad:
+
+  .. code-block:: igor
+
+     Function ButtonProcStart(STRUCT WMButtonAction &ba) : ButtonControl
+       string method = "slow"
+
+       switch(ba.eventCode)
+         case 2: // mouse up
+           // ...
+           break
+       endswitch
+     End
