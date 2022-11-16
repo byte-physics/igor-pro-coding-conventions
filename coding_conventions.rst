@@ -818,3 +818,30 @@ Bitwise vs. logical operators
 
      End
 
+Prefer named entities over unnamed ones
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- For historircal reasons developers can use unnamed user data, background
+  functions and window hooks. But as these are limited to one instance, it is
+  always more appropriate, and future-proof, to use the named variants instead.
+
+  Good:
+
+  .. code-block:: igor
+
+     SetWindow panel0 hook(cleanup)=DoPanelCleanup
+
+     SetWindow panel0 userData(key)=abcd
+
+     CtrlNamedBackground start, proc=DoStuffInBackground
+
+  Bad:
+
+  .. code-block:: igor
+
+     SetWindow panel0 hook=DoPanelCleanup
+
+     SetWindow panel0 userData=abcd
+
+     SetBackground DoStuffInBackground()
+     CtrlBackground start
