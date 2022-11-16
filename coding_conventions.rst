@@ -574,6 +574,28 @@ Waves
   Therefore to avoid confusing code always specify what value should go in which
   dimension (row, column, layer, chunk).
 
+- In large projects with a lot of wave getter functions it can be difficult to
+  ensure that the numeric types for waves are always correct. Igor Pro does
+  also not really help here, as the default type is ``FP32`` (single precision
+  float) and there is no way to require wave type specifications by the compiler.
+
+  Nevertheless it can be useful to specify the exact types for ``Make`` and
+  ``WAVE`` statements so that readers can verify that the correct types are used:
+
+  .. code-block:: igor
+
+    Function/WAVE GetWave()
+
+       Make/FREE/D someWave
+
+       return someWave
+    End
+
+    WAVE/D wv = GetWave()
+
+  See also ``DisplayHelpTopic "WAVE Reference Type Flags"`` for a list of all
+  possible wave type flags.
+
 Constants
 ^^^^^^^^^
 
