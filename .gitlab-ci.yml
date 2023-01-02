@@ -12,6 +12,19 @@ sphinx-documentation-html:
     paths:
       - _build/html
 
+pre-commit:
+  tags:
+    - debian, docker
+  variables:
+    PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
+  image:
+    name: ${CI_REGISTRY}/internal/docker-utils:latest
+  script:
+    - pre-commit run --all-files --show-diff-on-failure
+  cache:
+    paths:
+      - ${PRE_COMMIT_HOME}
+
 deployment_staging:
   when: manual
   tags:
@@ -33,6 +46,8 @@ deployment:
       when: on_success
   needs:
     - sphinx-documentation-html
+    - job: pre-commit
+      artifacts: false
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   script:
