@@ -3,7 +3,7 @@
 
 sphinx-documentation-html:
   tags:
-    - docker, debian
+    - docker, debian, amd64
   image:
     name: ${CI_REGISTRY}/internal/docker-sphinx:latest
   script:
@@ -14,7 +14,7 @@ sphinx-documentation-html:
 
 pre-commit:
   tags:
-    - debian, docker
+    - debian, docker, amd64
   variables:
     PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
   image:
@@ -28,7 +28,7 @@ pre-commit:
 deployment_staging:
   when: manual
   tags:
-    - docker, debian
+    - docker, debian, amd64
   needs:
     - sphinx-documentation-html
   image:
@@ -38,7 +38,7 @@ deployment_staging:
 
 deployment:
   tags:
-    - docker, debian
+    - docker, debian, amd64
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
