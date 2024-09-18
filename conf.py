@@ -50,10 +50,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 #
 html_theme = "alabaster"
-html_theme_options = {
-    'fixed_sidebar': 'true',
-    'page_width':'1500px'
-}
+html_static_path = ['_static']
 
 html_sidebars = {
         '**': ['localtoc.html', 'searchbox.html', 'version.html'],
