@@ -34,7 +34,7 @@ deployment_staging:
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   script:
-    - lftp -e "mirror --reverse --delete -n -e _build/html /igor-pro-coding-conventions; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING byte-physics.de
+    - lftp -e "mirror --reverse --delete -n -e _build/html /igor-pro-coding-conventions; bye" -u $FTP_USER_DOCS_STAGING,$FTP_PW_DOCS_STAGING $FTP_URL
 
 deployment:
   tags:
@@ -51,4 +51,4 @@ deployment:
   image:
     name: ${CI_REGISTRY}/internal/docker-utils:latest
   script:
-    - lftp -e "mirror --reverse --delete -n -e _build/html /igor-pro-coding-conventions; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS byte-physics.de
+    - lftp -e "mirror --reverse --delete -n -e _build/html /igor-pro-coding-conventions; bye" -u $FTP_USER_DOCS,$FTP_PW_DOCS $FTP_URL
