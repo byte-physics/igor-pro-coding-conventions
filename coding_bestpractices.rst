@@ -548,3 +548,77 @@ Therefore you should use numeric indizes in performance critical code
 which usually is the case inside loops. In case you want to index a
 fixed element in a loop by dimension labels call ``FindDimLabel``
 before the loop and store the numerical index.
+
+Versioned Waves
+^^^^^^^^^^^^^^^
+
+For waves that might change with further progression in a project it
+makes sense to add a version to the wave, e.g. through its wave note.
+This allows to upgrade old wave versions in case a customer loads an
+old experiment and want to use it with a current program version.
+A typical solution for such a getter function could look like this:
+
+.. code-block:: igor
+
+   Function/WAVE GetMyVersionedWave()
+
+        string name = "myWave"
+	variable versionOfNewWave = 4
+	variable size = 9
+
+	DFREF dfr = GetSourceDF()
+
+	WAVE/Z/D/SDFR=dfr wv = $name
+
+	if(ExistsWithCorrectLayoutVersion(wv, versionOfNewWave))
+		return wv
+	endif
+
+	if(WaveExists(wv))
+
+        // wave upgrade steps
+		if(WaveVersionIsSmaller(wv, 2))
+			Redimension/D/N=(7) wv
+			wv[5, 7]     = NaN
+		endif
+		if(WaveVersionIsSmaller(wv, 3))
+			Redimension/D/N=(10) wv
+			wv[8,]     = NaN
+		endif
+		if(WaveVersionIsSmaller(wv, 4))
+			DeletePoints/M=(ROWS) 4, 1, wv
+		endif
+	else
+        // wave creation
+		Make/D/N=(size) dfr:$name/WAVE=wv
+		wv = NaN
+	endif
+
+	SetDimLabel ROWS, 0, firstRow, wv
+	SetDimLabel ROWS, 1, secondRow, wv
+	SetDimLabel ROWS, 2, thirdRow, wv
+	SetDimLabel ROWS, 3, fourthRow, wv
+	SetDimLabel ROWS, 4, fifthRow, wv
+	SetDimLabel ROWS, 5, sixthRow, wv
+	SetDimLabel ROWS, 6, seventhRow, wv
+	SetDimLabel ROWS, 7, eighthRow, wv
+	SetDimLabel ROWS, 8, ninthRow, wv
+
+	SetWaveVersion(wv, versionOfNewWave)
+
+	return wv
+   End
+
+The functions ``ExistsWithCorrectLayoutVersion``, ``WaveVersionIsSmaller`` and ``SetWaveVersion`` have to be implemented.
+
+Notably the wave upgrade branch does each version upgrade sequentially.
+These steps should contain clear code that allows to understand what was changed with each version upgrade.
+Typically the change of the wave size (``Redimension``) and initial values setting must be part of each version upgrade.
+In some cases it can be also useful to include the DimLabel changes in the upgrade steps.
+
+It is not recommended to optimize changes over multiple versions in the upgrade steps.
+e.g. in the upper example considering upgrade until version 3 one might think that the ``Redimension`` could be pulled
+as ``Redimension/N=(size)`` before the upgrade steps because the wave size increases with each step up to version 3.
+But such optimization is incompatible with the change introduced later with version 4, where a previous row gets deleted.
+
+It is recommended to move complex upgrade changes into their own functions.
